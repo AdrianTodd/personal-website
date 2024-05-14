@@ -1,12 +1,11 @@
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
-import { NextApiRequest, NextApiResponse } from "next";
 
 const resend = new Resend(process.env.RESEND_API_KEY as string);
 const fromEmail = process.env.FROM_EMAIL as string;
 
-export async function POST(req: NextApiRequest, res: NextApiResponse) {
-  const { email, subject, message } = await req.body;
+export async function POST(req: Request, res: Response) {
+  const { email, subject, message } = await req.json();
   console.log(email, subject, message);
 
   try {
