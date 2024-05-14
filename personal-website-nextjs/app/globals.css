@@ -31,3 +31,9 @@ body {
     text-wrap: balance;
   }
 }
+
+@layer base {
+  html {
+    @apply scroll-smooth;
+  }
+}

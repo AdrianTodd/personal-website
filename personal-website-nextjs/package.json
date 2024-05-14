@@ -15,7 +15,8 @@
     "react": "^18",
     "react-dom": "^18",
     "react-type-animation": "^3.2.0",
-    "resend": "^3.2.0"
+    "resend": "^3.2.0",
+    "tech-stack-icons": "^2.0.3"
   },
   "devDependencies": {
     "@types/node": "^20",

@@ -1,9 +1,11 @@
 "use client";
 import React, { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import NavLink from "./NavLink";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/solid";
 import MenuOverlay from "./MenuOverlay";
+import atIcon from "../../public/logos/at-software.svg";
 
 const navLinks = [
   {
@@ -24,13 +26,13 @@ const Navbar: React.FC = () => {
   const [navBarOpen, setNavbarOpen] = useState(false);
 
   return (
-    <nav className='fixed top-0 left-0 right-0 z-10 bg-[#121212] bg-opacity-100'>
+    <nav className='fixed mx-auto border border-[#33353F] top-0 left-0 right-0 z-20 bg-[#121212] bg-opacity-100 overscroll-none'>
       <div className='flex flex-wrap items-center justify-between mx-auto px-4 py-2'>
         <Link
-          href={"/"}
-          className=' text-2xl md:text-5xl text-white font-semibold'
+          href={"/home"}
+          className='socials text-2xl md:text-5xl text-white font-semibold'
         >
-          Logo
+          <Image src={atIcon} alt='at-icon' width={80} height={80} />
         </Link>
         <div className='mobile-menu block md:hidden'>
           {!navBarOpen ? (
