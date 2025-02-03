@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, FormEvent } from "react";
+import React, { useState, useRef, useEffect, FormEvent } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import GithubIcon from "../../public/github-icon.svg";
@@ -7,6 +7,15 @@ import LinkedinIcon from "../../public/linkedin-icon.svg";
 
 const ContactSection: React.FC = () => {
   const [emailSubmitted, setEmailSubmitted] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const isMounted = useRef(true); // Create a ref
+
+  useEffect(() => {
+    return () => {
+      isMounted.current = false; // Set ref to false on unmount
+    };
+  }); // Empty dependency array ensures this runs only on mount/unmount
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -32,13 +41,33 @@ const ContactSection: React.FC = () => {
       },
       body: JSONdata,
     };
+    try {
+      const response = await fetch(endpoint, options);
+      if (!response.ok) {
+        const errorData = await response.json(); // Try to parse error response from the API
+        throw new Error(errorData.error || response.statusText); // Throw an error with API message or status
+      }
 
-    const response = await fetch(endpoint, options);
-    const resData = await response.json();
+      const resData = await response.json();
+      console.log("Message sent:", resData);
 
-    if (response.status === 200) {
-      console.log("Message sent.");
-      setEmailSubmitted(true);
+      if (isMounted.current) {
+        // Check if component is still mounted
+        setEmailSubmitted(true);
+        e.target.reset();
+      }
+    } catch (error: any) {
+      console.error("Error sending message:", error);
+      if (isMounted.current) {
+        // Check if component is still mounted
+        setErrorMessage(error.message);
+        setEmailSubmitted(false);
+      }
+    } finally {
+      if (isMounted.current) {
+        // Check if component is still mounted
+        setLoading(false);
+      }
     }
   };
 
