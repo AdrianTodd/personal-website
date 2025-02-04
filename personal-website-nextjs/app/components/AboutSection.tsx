@@ -36,15 +36,13 @@ const TAB_DATA: TabData[] = [
         <StackIcon iconName='tailwindcss' title='Tailwind CSS' />
         <StackIcon iconName='bootstrap5' title='Bootstrap5' />
         <StackIcon iconName='csharp' title='C# .NET' />
-        <li>
-          <li className='flex flex-col flex-wrap items-center text-xs'>
-            <Image
-              src={MSSQLLogo}
-              className={styles.stackicon}
-              alt='Microsoft SQL Server logo'
-            />
-            MSSQL
-          </li>
+        <li className='flex flex-col flex-wrap items-center text-xs'>
+          <Image
+            src={MSSQLLogo}
+            className={styles.stackicon}
+            alt='Microsoft SQL Server logo'
+          />
+          MSSQL
         </li>
         <StackIcon iconName='mongodb' title='mongoDB' />
         <StackIcon iconName='graphql' title='graphQL' />
@@ -62,8 +60,11 @@ const TAB_DATA: TabData[] = [
     id: "education",
     content: (
       <ul className='list-disc mx-4'>
+        <li>
+          Currently in 3rd Year of Post Diploma BSc in Computer Science,
+          University of Lethbridge Calgary Campus
+        </li>
         <li>Bow Valley College, Software Development Diploma</li>
-        <li>MOOCS</li>
       </ul>
     ),
   },
@@ -72,6 +73,7 @@ const TAB_DATA: TabData[] = [
     id: "experience",
     content: (
       <ul className='list-disc mx-4'>
+        <li>Academic Projects, University of Lethbridge</li>
         <li>Jr. Software Developer R&D, Orpyx Medical Technologies</li>
         <li>Software Development Projects, Bow Valley College</li>
       </ul>

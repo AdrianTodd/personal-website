@@ -43,7 +43,7 @@ const HeroSection: React.FC = () => {
           </p>
           <div>
             <Link
-              href='/home#contact'
+              href='/#contact'
               className='px-6 inline-block py-3 w-full sm:w-fit rounded-full mr-4 bg-gradient-to-br hover:bg-gradient-to-tl from-primary-500 to-secondary-950 hover:bg-slate-800 text-white'
             >
               Hire Me

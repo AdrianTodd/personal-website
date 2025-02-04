@@ -1,10 +1,10 @@
-import { NextResponse } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
 import { Resend } from "resend";
 
 const resend = new Resend(process.env.RESEND_API_KEY as string);
 const fromEmail = process.env.FROM_EMAIL as string;
 
-export async function POST(req: Request, res: Response) {
+export async function POST(req: NextRequest) {
   if (!process.env.RESEND_API_KEY) {
     return new NextResponse("Missing RESEND_API_KEY", { status: 500 });
   }
@@ -18,22 +18,29 @@ export async function POST(req: Request, res: Response) {
     console.log(email, subject, message);
     const data = await resend.emails.send({
       from: fromEmail,
-      to: [fromEmail, email],
+      to: "todd.r.adrian@gmail.com",
       subject: subject,
       react: (
         <>
-          <h1>{subject}</h1>
-          <p>Thank you for contacting us!</p>
-          <p>New message submitted:</p>
-          <p>{message}</p>
+          <h1>Subject: {subject}</h1>
+          <p>From: {email}</p>
+          <p>Message: {message}</p>
         </>
       ),
     });
-    return new NextResponse(JSON.stringify(data), { status: 201 }); // 201 Created
+    if (data.error) {
+      return new NextResponse(JSON.stringify({ error: data.error }), {
+        status: 500,
+      });
+    }
+    return new NextResponse(
+      JSON.stringify({ message: "Email sent successfully" }),
+      { status: 200 }
+    );
   } catch (error: any) {
     console.error("Error sending email:", error);
     return new NextResponse(JSON.stringify({ error: error.message }), {
       status: 500,
-    }); // More specific error
+    });
   }
 }

@@ -19,29 +19,31 @@ const ContactSection: React.FC = () => {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    const target = e.target as typeof e.target & {
-      email: { value: string };
-      subject: { value: string };
-      message: { value: string };
-    };
-
-    const data = {
-      email: target.email.value,
-      subject: target.subject.value,
-      message: target.message.value,
-    };
-
-    const JSONdata = JSON.stringify(data);
-    const endpoint = "/api";
-
-    const options = {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSONdata,
-    };
+    setLoading(true);
+    setErrorMessage(null); // Clear any previous errors
     try {
+      const target = e.target as typeof e.target & {
+        email: { value: string };
+        subject: { value: string };
+        message: { value: string };
+      };
+
+      const data = {
+        email: target.email.value,
+        subject: target.subject.value,
+        message: target.message.value,
+      };
+
+      const JSONdata = JSON.stringify(data);
+      const endpoint = "/api";
+
+      const options = {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSONdata,
+      };
       const response = await fetch(endpoint, options);
       if (!response.ok) {
         const errorData = await response.json(); // Try to parse error response from the API
@@ -54,7 +56,7 @@ const ContactSection: React.FC = () => {
       if (isMounted.current) {
         // Check if component is still mounted
         setEmailSubmitted(true);
-        e.target.reset();
+        (e.target as HTMLFormElement).reset();
       }
     } catch (error: any) {
       console.error("Error sending message:", error);
@@ -154,8 +156,14 @@ const ContactSection: React.FC = () => {
               type='submit'
               className='bg-primary-500 hover:bg-primary-600 text-white font-medium py-2.5 px-5 rounded-lg w-full'
             >
-              Send Message
+              {loading ? "Sending..." : "Send Message"}{" "}
+              {/* Show "Sending..." while loading */}
             </button>
+            {loading && <p className='text-gray-500 mt-2'>Sending email...</p>}{" "}
+            {/* Display loading message */}
+            {errorMessage && (
+              <p className='text-red-500 mt-2'>{errorMessage}</p>
+            )}
           </form>
         )}
       </div>
