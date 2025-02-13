@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useRef, useEffect, FormEvent } from "react";
+import { TailSpin } from "react-loader-spinner";
 import Link from "next/link";
 import Image from "next/image";
 import GithubIcon from "../../public/github-icon.svg";
@@ -13,7 +14,7 @@ const ContactSection: React.FC = () => {
 
   useEffect(() => {
     return () => {
-      isMounted.current = false; // Set ref to false on unmount
+      isMounted.current = false;
     };
   }); // Empty dependency array ensures this runs only on mount/unmount
 
@@ -22,16 +23,12 @@ const ContactSection: React.FC = () => {
     setLoading(true);
     setErrorMessage(null); // Clear any previous errors
     try {
-      const target = e.target as typeof e.target & {
-        email: { value: string };
-        subject: { value: string };
-        message: { value: string };
-      };
+      const form = e.target as HTMLFormElement;
 
       const data = {
-        email: target.email.value,
-        subject: target.subject.value,
-        message: target.message.value,
+        email: form.email.value,
+        subject: form.subject.value,
+        message: form.message.value,
       };
 
       const JSONdata = JSON.stringify(data);
@@ -53,11 +50,8 @@ const ContactSection: React.FC = () => {
       const resData = await response.json();
       console.log("Message sent:", resData);
 
-      if (isMounted.current) {
-        // Check if component is still mounted
-        setEmailSubmitted(true);
-        (e.target as HTMLFormElement).reset();
-      }
+      setEmailSubmitted(true);
+      form.reset();
     } catch (error: any) {
       console.error("Error sending message:", error);
       if (isMounted.current) {
@@ -67,7 +61,6 @@ const ContactSection: React.FC = () => {
       }
     } finally {
       if (isMounted.current) {
-        // Check if component is still mounted
         setLoading(false);
       }
     }
@@ -80,7 +73,7 @@ const ContactSection: React.FC = () => {
     >
       <div className='bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-primary-700 to-transparent rounded-full h-80 w-80 z-0 blur-lg absolute top-1/2 transform  -translate-1/2'></div>
       <div className='lg:hidden bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-secondary-900 to-transparent rounded-full h-80 w-80 z-0 lg:-right-1 blur-lg absolute top-1/2 -right-4 transform -translate-x-2 -translate-1/2'></div>
-      <div className='z-9'>
+      <div className='z-20'>
         <h5 className='text-xl font-bold text-white my-2'>
           Let&apos;s Connect
         </h5>
@@ -101,9 +94,12 @@ const ContactSection: React.FC = () => {
       </div>
       <div className='z-10'>
         {emailSubmitted ? (
-          <p className='text-green-500 text-sm mt-2'>
+          <div className='text-green-500 text-sm mt-2'>
             Email sent successfully!
-          </p>
+            <p className='text-gray-500 mt-2'>
+              I will get back to you as soon as possible.
+            </p>
+          </div>
         ) : (
           <form className='flex flex-col' onSubmit={handleSubmit}>
             <div className='mb-6'>
@@ -155,12 +151,21 @@ const ContactSection: React.FC = () => {
             <button
               type='submit'
               className='bg-primary-500 hover:bg-primary-600 text-white font-medium py-2.5 px-5 rounded-lg w-full'
+              disabled={loading}
             >
-              {loading ? "Sending..." : "Send Message"}{" "}
-              {/* Show "Sending..." while loading */}
+              {loading ? "Sending..." : "Send Message"}
             </button>
-            {loading && <p className='text-gray-500 mt-2'>Sending email...</p>}{" "}
-            {/* Display loading message */}
+            {loading && (
+              <div className='flex justify-center mt-4'>
+                <TailSpin
+                  height='40'
+                  width='40'
+                  color='#4fa94d'
+                  ariaLabel='loading'
+                  visible={true}
+                />
+              </div>
+            )}
             {errorMessage && (
               <p className='text-red-500 mt-2'>{errorMessage}</p>
             )}
