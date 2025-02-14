@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import * as knowledgeBase from "../../../knowledge.json";
-
+import knowledgeBase from "../../../knowledge.json";
+console.log("Imported knowledgeBase:", knowledgeBase);
 interface QuizItem {
   q: string;
   options: string[];
@@ -12,6 +12,13 @@ interface KnowledgeItem {
   answer: string;
   hint?: string;
   quiz?: QuizItem[];
+}
+
+interface KnowledgeBase {
+  keywords: string[];
+  answer: string;
+  hint?: string | undefined;
+  quiz?: QuizItem[] | undefined;
 }
 
 interface ChatResponse {
@@ -37,7 +44,7 @@ export async function POST(request: Request) {
     },
   };
 
-  for (const item of knowledgeBase as KnowledgeItem[]) {
+  for (const item of knowledgeBase as unknown as KnowledgeItem[]) {
     for (const keyword of item.keywords || []) {
       if (userMessage.includes(keyword)) {
         if (userMessage.includes("hint") && item.hint) {
