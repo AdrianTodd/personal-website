@@ -37,8 +37,8 @@ export async function POST(request: Request) {
     },
   };
 
-  for (const item of knowledgeBase as KnowledgeItem[]) {
-    for (const keyword of item.keywords) {
+  for (const item of knowledgeBase.default as KnowledgeItem[]) {
+    for (const keyword of item.keywords || []) {
       if (userMessage.includes(keyword)) {
         if (userMessage.includes("hint") && item.hint) {
           response = { response: { type: "text", content: item.hint } };
