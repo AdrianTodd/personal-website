@@ -32,7 +32,7 @@ const ContactSection: React.FC = () => {
       };
 
       const JSONdata = JSON.stringify(data);
-      const endpoint = "/api";
+      const endpoint = "/api/resend";
 
       const options = {
         method: "POST",

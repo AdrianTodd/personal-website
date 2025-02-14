@@ -8,6 +8,7 @@ interface Project {
   id: number;
   title: string;
   description: string;
+  tech: string;
   image: string;
   tag: string[];
   gitUrl: string;
@@ -19,8 +20,9 @@ const projectsData: Project[] = [
     id: 1,
     title: "Next.js Personal Website",
     description:
-      "Lorem ipsum dolor sit, amet consectetur adipisicing elit. Repudiandae, exercitationem sed modi aperiam eius laborum in quam neque veritatis repellat voluptate dolore alias ullam, animi nesciunt iure tempora, error cum?",
-    image: "/images/projects/under-construction.png",
+      "I had fun building this website, especially incorporating the resend API to redirect emails to my personal email.  I also enjoyed learning how to build an AI chatbot, I plan on building this chatbot into a study web app for helping me throughout the rest of my degree.",
+    tech: "TypeScript | React | Next.js | Express.js | Resend API | Tailwind CSS",
+    image: "/images/projects/website_screenshot.png",
     tag: ["All", "Web"],
     gitUrl: "/",
     previewUrl: "/",
@@ -30,6 +32,7 @@ const projectsData: Project[] = [
     title: "Project 2",
     description:
       "Lorem ipsum dolor sit, amet consectetur adipisicing elit. Repudiandae, exercitationem sed modi aperiam eius laborum in quam neque veritatis repellat voluptate dolore alias ullam, animi nesciunt iure tempora, error cum?",
+    tech: "",
     image: "/images/projects/under-construction.png",
     tag: ["All", "Web"],
     gitUrl: "/",
@@ -40,6 +43,7 @@ const projectsData: Project[] = [
     title: "Project 3",
     description:
       "Lorem ipsum dolor sit, amet consectetur adipisicing elit. Repudiandae, exercitationem sed modi aperiam eius laborum in quam neque veritatis repellat voluptate dolore alias ullam, animi nesciunt iure tempora, error cum?",
+    tech: "",
     image: "/images/projects/under-construction.png",
     tag: ["All", "Web"],
     gitUrl: "/",
@@ -50,6 +54,7 @@ const projectsData: Project[] = [
     title: "Project 4",
     description:
       "Lorem ipsum dolor sit, amet consectetur adipisicing elit. Repudiandae, exercitationem sed modi aperiam eius laborum in quam neque veritatis repellat voluptate dolore alias ullam, animi nesciunt iure tempora, error cum?",
+    tech: "",
     image: "/images/projects/under-construction.png",
     tag: ["All", "Data"],
     gitUrl: "/",
@@ -60,6 +65,7 @@ const projectsData: Project[] = [
     title: "Project 5",
     description:
       "Lorem ipsum dolor sit, amet consectetur adipisicing elit. Repudiandae, exercitationem sed modi aperiam eius laborum in quam neque veritatis repellat voluptate dolore alias ullam, animi nesciunt iure tempora, error cum?",
+    tech: "",
     image: "/images/projects/under-construction.png",
     tag: ["All", "Web"],
     gitUrl: "/",
@@ -70,6 +76,7 @@ const projectsData: Project[] = [
     title: "Project 6",
     description:
       "Lorem ipsum dolor sit, amet consectetur adipisicing elit. Repudiandae, exercitationem sed modi aperiam eius laborum in quam neque veritatis repellat voluptate dolore alias ullam, animi nesciunt iure tempora, error cum?",
+    tech: "",
     image: "/images/projects/under-construction.png",
     tag: ["All", "Web"],
     gitUrl: "/",
@@ -131,6 +138,7 @@ const ProjectsSection: React.FC = () => {
               key={project.id}
               title={project.title}
               description={project.description}
+              tech={project.tech}
               imgUrl={project.image}
               gitUrl={project.gitUrl}
               previewUrl={project.previewUrl}

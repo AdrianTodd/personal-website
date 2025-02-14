@@ -1,0 +1,58 @@
+[
+  {
+    "keywords": ["recursion", "recursive"],
+    "answer": "Recursion is a technique where a function calls itself to solve smaller subproblems of the same type.",
+    "hint": "Think about a function that solves a problem by breaking it down into smaller, identical problems.",
+    "quiz": [
+      {
+        "q": "What data structure is often implicitly used in recursive algorithms?",
+        "options": ["Array", "Stack", "Queue", "Linked List"],
+        "correct": "Stack"
+      },
+      {
+        "q": "Fill in the blank: Every recursive function needs a ____ case.",
+        "options": ["base", "iterative", "complex", "recursive"],
+        "correct": "base"
+      }
+    ]
+  },
+  {
+    "keywords": ["big o", "time complexity", "complexity"],
+    "answer": "Big O notation describes the upper bound of an algorithm's time or space complexity in terms of input size.",
+    "hint": "It's about how the runtime or memory usage grows as the input grows.",
+    "quiz": [
+      {
+        "q": "What is the time complexity of a linear search in the worst-case scenario?",
+        "options": ["O(1)", "O(n)", "O(log n)", "O(n^2)"],
+        "correct": "O(n)"
+      },
+      {
+        "q": "True or False? O(n^2) is generally better than O(n log n).",
+        "options": ["True", "False"],
+        "correct": "False"
+      }
+    ]
+  },
+  {
+    "keywords": ["binary search", "search algorithm"],
+    "answer": "Binary search is an efficient algorithm for finding an item in a *sorted* array by repeatedly dividing the search interval in half.",
+    "hint": "It only works on sorted data!",
+    "quiz": [
+      {
+        "q": "What is a prerequisite for using binary search on a dataset?",
+        "options": [
+          "The data should be unsorted",
+          "The data should be sorted",
+          "The data should be in a binary tree",
+          "The data can be anything"
+        ],
+        "correct": "The data should be sorted"
+      },
+      {
+        "q": "True or False. Binary search has a time complexity of O(n) in the worst case",
+        "options": ["True", "False"],
+        "correct": "False"
+      }
+    ]
+  }
+]

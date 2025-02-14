@@ -26,7 +26,7 @@ const Navbar: React.FC = () => {
   const [navBarOpen, setNavbarOpen] = useState(false);
 
   return (
-    <nav className='fixed mx-auto border border-[#33353F] top-0 left-0 right-0 z-20 bg-[#121212] bg-opacity-100 overscroll-none'>
+    <nav className='fixed mx-auto border border-[#33353F] top-0 left-0 right-0 z-50 bg-[#121212] bg-opacity-100 overscroll-none'>
       <div className='flex flex-wrap items-center justify-between mx-auto px-4 py-2'>
         <Link
           href={"/"}

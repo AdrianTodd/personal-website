@@ -6,6 +6,7 @@ interface ProjectCardProps {
   imgUrl: string;
   title: string;
   description: string;
+  tech: string;
   gitUrl: string;
   previewUrl: string;
 }
@@ -14,6 +15,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
   imgUrl,
   title,
   description,
+  tech,
   gitUrl,
   previewUrl,
 }) => {
@@ -41,6 +43,9 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
       <div className='text-white rounded-b-xl mt-3 bg-[#181818] py-6 px-4'>
         <h5 className='text-xl font-semibold mb-2'>{title}</h5>
         <p className='text-[#ADB7BE]'>{description}</p>
+        <p className='text-white mt-2'>
+          <b>Technologies used: {tech}</b>
+        </p>
       </div>
     </div>
   );
