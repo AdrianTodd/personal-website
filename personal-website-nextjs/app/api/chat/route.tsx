@@ -1,78 +1,137 @@
 import { NextResponse } from "next/server";
-import knowledgeBase from "../../../knowledge.json";
-console.log("Imported knowledgeBase:", knowledgeBase);
-interface QuizItem {
-  q: string;
-  options: string[];
-  correct: string;
+import {
+  GoogleGenerativeAI,
+  HarmBlockThreshold,
+  HarmCategory,
+} from "@google/generative-ai";
+import { RateLimiterMemory } from "rate-limiter-flexible";
+
+// const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
+const genAI = new GoogleGenerativeAI(
+  process.env.GEMINI_API_KEY || "AIzaSyD_AQTd3dOxHZCaTn9JFoBSSHLMwUJjhLM"
+);
+const prompt = `You are a helpful study buddy for computer science students.
+ Answer the following question as concisely as possible, and be accurate.`;
+const model = genAI.getGenerativeModel({
+  model: "gemini-2.0-flash",
+  systemInstruction: prompt,
+});
+
+const MAX_TOKENS = 4000; //  Example token limit
+const MAX_REQUESTS_PER_MINUTE = 30;
+
+const limiter = new RateLimiterMemory({
+  points: MAX_REQUESTS_PER_MINUTE, // Number of points (requests)
+  duration: 60, // Per 60 seconds
+});
+
+//Helper function to count tokens
+async function countTokens(text: string): Promise<number> {
+  const tokenCountData = await model.countTokens(text);
+  return tokenCountData.totalTokens;
 }
 
-interface KnowledgeItem {
-  keywords: string[];
-  answer: string;
-  hint?: string;
-  quiz?: QuizItem[];
-}
-
-interface KnowledgeBase {
-  keywords: string[];
-  answer: string;
-  hint?: string | undefined;
-  quiz?: QuizItem[] | undefined;
-}
-
-interface ChatResponse {
-  response: {
-    type: "text" | "quiz";
-    content?: string;
-    question?: string;
-    options?: string[];
-    correct?: string;
-    topic?: string;
-  };
+// Helper function to get IP (handling proxies)
+function getClientIP(req: Request): string {
+  const xForwardedFor = req.headers.get("x-forwarded-for");
+  if (xForwardedFor) {
+    return xForwardedFor.split(",")[0].trim();
+  }
+  return req.headers.get("x-real-ip") || "127.0.0.1"; // Fallback
 }
 
 export async function POST(request: Request) {
-  const { message } = await request.json();
-  const userMessage = message.toLowerCase();
+  try {
+    const ip = getClientIP(request);
+    try {
+      await limiter.consume(ip);
+    } catch (rej) {
+      if (rej instanceof Error) {
+        console.error("Rate Limiting Error:", rej);
+      }
+      return new NextResponse("Too many requests. Please try again later.", {
+        status: 429,
+      });
+    }
 
-  let response: ChatResponse = {
-    response: {
-      type: "text",
-      content:
-        "I'm not sure I understand. Can you rephrase or ask about a specific CS topic?",
-    },
-  };
+    const data = await request.json();
+    console.log("Request Data:", data);
+    const userMessage = data.message as string;
+    const previousMessages = data.previousMessages || [];
 
-  for (const item of knowledgeBase as unknown as KnowledgeItem[]) {
-    for (const keyword of item.keywords || []) {
-      if (userMessage.includes(keyword)) {
-        if (userMessage.includes("hint") && item.hint) {
-          response = { response: { type: "text", content: item.hint } };
-        } else if (userMessage.includes("quiz") && item.quiz) {
-          const quizItem =
-            item.quiz[Math.floor(Math.random() * item.quiz.length)];
-          response = {
-            response: {
-              type: "quiz",
-              question: quizItem.q,
-              options: quizItem.options,
-              correct: quizItem.correct,
-              topic: keyword,
-            },
-          };
-        } else {
-          response = { response: { type: "text", content: item.answer } };
-        }
-        break;
+    // --- Calculate Total Tokens
+    let totalTokens = 0;
+    for (const msg of previousMessages) {
+      totalTokens += await countTokens(msg.text);
+    }
+    totalTokens += await countTokens(userMessage);
+
+    if (totalTokens > MAX_TOKENS) {
+      return NextResponse.json(
+        { error: "Sorry, the conversation has reached its token limit." },
+        { status: 400 }
+      );
+    }
+
+    // --- Construct Prompt (adjust as needed) ---
+    const chatHistory = [];
+
+    if (previousMessages.length === 0) {
+      chatHistory.push({ role: "user", parts: { prompt } }); // Or an empty string ""
+    } else {
+      //If there ARE previous messages, correctly format them.
+      for (const msg of previousMessages) {
+        chatHistory.push({
+          role: msg.sender === "user" ? "user" : "model",
+          parts: [msg.text],
+        });
       }
     }
-    if (
-      response.response.content !=
-      "I'm not sure I understand.  Can you rephrase or ask about a specific CS topic?"
-    ) {
-      break;
+    chatHistory.push({
+      role: "user",
+      parts: [userMessage],
+    });
+    const chat = model.startChat({
+      generationConfig: {
+        maxOutputTokens: 150, // Limit response length
+      },
+      safetySettings: [
+        //Reduce likelyhood of problematic responses
+        {
+          category: HarmCategory.HARM_CATEGORY_HARASSMENT,
+          threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH,
+        },
+        {
+          category: HarmCategory.HARM_CATEGORY_HATE_SPEECH,
+          threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH,
+        },
+        {
+          category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
+          threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH,
+        },
+        {
+          category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
+          threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH,
+        },
+      ],
+    });
+
+    const result = await chat.sendMessage(userMessage); // Use Gemini API
+    const botResponse = result.response.text();
+    console.log("Bot Response:", botResponse);
+
+    return NextResponse.json({ response: botResponse });
+  } catch (error) {
+    if (error instanceof Error && error.message === "Rate limit exceeded") {
+      return NextResponse.json(
+        { error: "Too many requests. Please try again later." },
+        { status: 429 }
+      ); // 429 Too Many Requests
     }
+    console.error("Gemini API Error:", error);
+    return NextResponse.json(
+      { error: "Failed to get a response." },
+      { status: 500 }
+    );
   }
-  return NextResponse.json(response);
 }

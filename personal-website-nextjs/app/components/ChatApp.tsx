@@ -2,30 +2,23 @@
 import React, { useState, useEffect, useRef } from "react";
 import Message from "./Message";
 import ChatInput from "./ChatInput";
-import QuizMessage from "./QuizMessage"; // New component for quiz questions
 
+const MAX_MESSAGES = 20;
 interface MessageType {
-  text?: string;
-  sender: "user" | "bot";
-  type: "text" | "quiz"; // Add type property
-  question?: string; // For quiz questions
-  options?: string[]; // For quiz options
-  correct?: string; // Correct answer for quiz
-  topic?: string; //Used to check if user answer is related
+  text: string;
+  sender: "user" | "model";
 }
 
 function ChatApp() {
   const [messages, setMessages] = useState<MessageType[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const [currentQuiz, setCurrentQuiz] = useState<MessageType | null>(null); // Keep track of current quiz question
 
   useEffect(() => {
     setMessages([
       {
-        text: "Hi! I am your Study Buddy. Ask me anything about CS!",
-        sender: "bot",
-        type: "text",
+        text: "Hi! I am Adrian's Study Buddy. Ask me anything about Computer Science!",
+        sender: "model",
       },
     ]);
   }, []);
@@ -39,54 +32,52 @@ function ChatApp() {
   }, [messages]);
 
   const handleSendMessage = async (userMessage: string) => {
-    if (!userMessage.trim()) return;
-    let userMessageType: "text" | "quiz" = "text";
+    if (messages.length > MAX_MESSAGES) return;
 
-    //Check for quiz response
-    if (currentQuiz) {
-      userMessageType = "quiz";
-    }
-    setMessages(prevMessages => [
-      ...prevMessages,
-      { text: userMessage, sender: "user", type: userMessageType },
-    ]);
+    const newMessage: MessageType = { text: userMessage, sender: "user" };
+    setMessages(prevMessages => [...prevMessages, newMessage]); //add before blocking
     setIsLoading(true);
 
     try {
+      // Prepare previous messages for context (limit to last few)
+      const previousMessagesForAPI = messages
+        .filter(msg => msg.sender !== "model" || messages.length > 1) // Remove initial message
+        .slice(-5)
+        .map(msg => ({
+          roll: msg.sender,
+          parts: msg.text,
+        }));
+
       const response = await fetch("/api/chat", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ message: userMessage }),
+        body: JSON.stringify({ message: userMessage, previousMessagesForAPI }),
       });
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data = await response.json();
-      const botResponse = data.response;
-
-      if (botResponse.type === "quiz") {
-        // Store the quiz question for later answer checking
-        setCurrentQuiz(botResponse);
-        setMessages(prevMessages => [
-          ...prevMessages,
-          { ...botResponse, sender: "bot" },
-        ]);
+        if (response.status === 400 || response.status === 429) {
+          const errorData = await response.json();
+          setMessages(prevMessages => [
+            ...prevMessages,
+            { text: errorData.error, sender: "model" },
+          ]);
+        } else {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
       } else {
+        const data = await response.json();
         setMessages(prevMessages => [
           ...prevMessages,
-          { text: botResponse.content, sender: "bot", type: "text" },
+          { text: data.response, sender: "model" },
         ]);
-        setCurrentQuiz(null);
       }
     } catch (error) {
       console.error("Error sending message:", error);
       setMessages(prevMessages => [
         ...prevMessages,
-        { text: "Sorry, something went wrong.", sender: "bot", type: "text" },
+        { text: "Sorry, something went wrong.", sender: "model" },
       ]);
     } finally {
       setIsLoading(false);
@@ -95,51 +86,23 @@ function ChatApp() {
 
   return (
     <div className='flex flex-col h-full'>
-      <div className='chat-header bg-gradient-to-tr hover:bg-gradient-to-bl from-primary-800 to-secondary-700 text-white p-4 m-1 text-center rounded-t-lg'>
+      <div className='chat-header bg-gradient-to-tr  from-primary-800 to-secondary-700 text-white p-4 m-1 text-center rounded-t-lg'>
         <h2 className='text-lg font-semibold'>Study Buddy</h2>
       </div>
       <div className='chat-messages flex-grow overflow-y-auto p-4 space-y-2'>
-        {messages.map((message, index) => {
-          if (message.type === "quiz") {
-            return (
-              <QuizMessage
-                key={index}
-                question={message.question!}
-                options={message.options!}
-                sender={message.sender}
-                onAnswer={answer => {
-                  if (
-                    currentQuiz &&
-                    message.question === currentQuiz.question
-                  ) {
-                    const isCorrect = answer === currentQuiz.correct;
-                    const feedback = isCorrect
-                      ? `Correct! ${currentQuiz.correct} is the right answer.`
-                      : `Incorrect. The correct answer was ${currentQuiz.correct}.`;
-                    setMessages(prevMessages => [
-                      ...prevMessages,
-                      { text: feedback, sender: "bot", type: "text" },
-                    ]);
-                    setCurrentQuiz(null); // Clear current quiz after feedback
-                  }
-                }}
-              />
-            );
-          } else {
-            return (
-              <Message
-                key={index}
-                message={message.text!}
-                sender={message.sender}
-              />
-            );
-          }
-        })}
+        {messages.length >= MAX_MESSAGES && (
+          <p className='text-red-500 text-center'>
+            You've reached the maximum number of messages.
+          </p>
+        )}
+        {messages.map((message, index) => (
+          <Message key={index} message={message.text} sender={message.sender} />
+        ))}
         <div ref={messagesEndRef} />
       </div>
       <ChatInput
         onSendMessage={handleSendMessage}
-        disabled={isLoading || currentQuiz != null}
+        disabled={isLoading || messages.length >= MAX_MESSAGES}
       />
       {isLoading && (
         <div className='typing-indicator text-gray-500 p-2 text-center'>
