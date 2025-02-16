@@ -6,10 +6,7 @@ import {
 } from "@google/generative-ai";
 import { RateLimiterMemory } from "rate-limiter-flexible";
 
-// const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
-const genAI = new GoogleGenerativeAI(
-  process.env.GEMINI_API_KEY || "AIzaSyD_AQTd3dOxHZCaTn9JFoBSSHLMwUJjhLM"
-);
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
 const prompt = `You are a helpful study buddy for computer science students.
  Answer the following question as concisely as possible, and be accurate.`;
 const model = genAI.getGenerativeModel({
@@ -77,9 +74,8 @@ export async function POST(request: Request) {
     const chatHistory = [];
 
     if (previousMessages.length === 0) {
-      chatHistory.push({ role: "user", parts: { prompt } }); // Or an empty string ""
+      chatHistory.push({ role: "user", parts: { prompt } });
     } else {
-      //If there ARE previous messages, correctly format them.
       for (const msg of previousMessages) {
         chatHistory.push({
           role: msg.sender === "user" ? "user" : "model",
