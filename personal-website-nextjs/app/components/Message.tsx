@@ -2,7 +2,7 @@ import React from "react";
 
 interface MessageProps {
   message: string;
-  sender: "user" | "bot";
+  sender: "user" | "model";
 }
 
 function Message({ message, sender }: MessageProps) {

@@ -35,11 +35,10 @@ function ChatApp() {
     if (messages.length > MAX_MESSAGES) return;
 
     const newMessage: MessageType = { text: userMessage, sender: "user" };
-    setMessages(prevMessages => [...prevMessages, newMessage]); //add before blocking
+    setMessages(prevMessages => [...prevMessages, newMessage]);
     setIsLoading(true);
 
     try {
-      // Prepare previous messages for context (limit to last few)
       const previousMessagesForAPI = messages
         .filter(msg => msg.sender !== "model" || messages.length > 1) // Remove initial message
         .slice(-5)
@@ -92,7 +91,7 @@ function ChatApp() {
       <div className='chat-messages flex-grow overflow-y-auto p-4 space-y-2'>
         {messages.length >= MAX_MESSAGES && (
           <p className='text-red-500 text-center'>
-            You've reached the maximum number of messages.
+            You&#39;ve reached the maximum number of messages.
           </p>
         )}
         {messages.map((message, index) => (
