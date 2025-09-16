@@ -34,7 +34,7 @@ function ChatInput({ onSendMessage, disabled }: ChatInputProps) {
       <input
         type='text'
         id='user-input'
-        placeholder='Ask me anything about CS...'
+        placeholder='Ask me anything about Computer Science...'
         value={inputValue}
         onChange={handleInputChange}
         onKeyDown={handleKeyDown}

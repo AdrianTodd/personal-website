@@ -91,7 +91,7 @@ function ChatApp() {
       <div className='chat-messages flex-grow overflow-y-auto p-4 space-y-2'>
         {messages.length >= MAX_MESSAGES && (
           <p className='text-red-500 text-center'>
-            You&#39;ve reached the maximum number of messages.
+            You&apos;ve reached the maximum number of messages.
           </p>
         )}
         {messages.map((message, index) => (
