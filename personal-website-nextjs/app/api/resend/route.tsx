@@ -18,7 +18,7 @@ export async function POST(req: NextRequest) {
     console.log(email, subject, message);
     const data = await resend.emails.send({
       from: fromEmail,
-      to: ["todd.r.adrian@gmail.com"],
+      to: "todd.r.adrian@gmail.com",
       subject: subject,
       react: (
         <>
@@ -29,10 +29,13 @@ export async function POST(req: NextRequest) {
       ),
     });
     if (data.error) {
+      console.error("Resend API Error:", data.error);
       return new NextResponse(JSON.stringify({ error: data.error }), {
         status: 500,
       });
     }
+
+    console.log("Email sent successfully:", data); // Log success
     return new NextResponse(
       JSON.stringify({ message: "Email sent successfully" }),
       { status: 200 }
