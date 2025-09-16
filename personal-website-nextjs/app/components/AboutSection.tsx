@@ -61,7 +61,7 @@ const TAB_DATA: TabData[] = [
     content: (
       <ul className='list-disc mx-4'>
         <li>
-          Currently in 3rd Year of Post Diploma BSc in Computer Science,
+          Currently in 4th Year of Post Diploma BSc in Computer Science,
           University of Lethbridge Calgary Campus
         </li>
         <li>Bow Valley College, Software Development Diploma</li>
