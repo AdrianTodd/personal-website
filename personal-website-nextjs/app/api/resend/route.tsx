@@ -3,7 +3,7 @@ import { Resend } from "resend";
 
 const resend = new Resend(process.env.RESEND_API_KEY as string);
 const fromEmail = process.env.FROM_EMAIL as string;
-console.log(fromEmail);
+console.log(resend);
 export async function POST(req: NextRequest) {
   if (!process.env.RESEND_API_KEY) {
     return new NextResponse("Missing RESEND_API_KEY", { status: 500 });
@@ -18,7 +18,7 @@ export async function POST(req: NextRequest) {
     console.log(email, subject, message);
     const data = await resend.emails.send({
       from: fromEmail,
-      to: ["delivered@resend.dev"],
+      to: ["todd.r.adrian@gmail.com"],
       subject: subject,
       react: (
         <>
